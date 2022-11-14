@@ -1,0 +1,21 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "virtualMachines_HyperVLabs_name": {
+            "value": null
+        },
+        "disks_HyperVLabs_OsDisk_1_16356a2bfe774ab995a3906ced7a0460_externalid": {
+            "value": null
+        },
+        "disks_DiskServerVM_externalid": {
+            "value": null
+        },
+        "disks_DiskClientVM_externalid": {
+            "value": null
+        },
+        "networkInterfaces_hypervlabs463_externalid": {
+            "value": null
+        }
+    }
+}

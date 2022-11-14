@@ -1,0 +1,122 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "virtualMachines_HyperVLabs_name": {
+            "defaultValue": "HyperVLabs",
+            "type": "String"
+        },
+        "disks_HyperVLabs_OsDisk_1_16356a2bfe774ab995a3906ced7a0460_externalid": {
+            "defaultValue": "/subscriptions/ed9b1b3a-7701-4096-b99a-d8c9fcfe74c9/resourceGroups/TLKLABS/providers/Microsoft.Compute/disks/HyperVLabs_OsDisk_1_16356a2bfe774ab995a3906ced7a0460",
+            "type": "String"
+        },
+        "disks_DiskServerVM_externalid": {
+            "defaultValue": "/subscriptions/ed9b1b3a-7701-4096-b99a-d8c9fcfe74c9/resourceGroups/TLKLABS/providers/Microsoft.Compute/disks/DiskServerVM",
+            "type": "String"
+        },
+        "disks_DiskClientVM_externalid": {
+            "defaultValue": "/subscriptions/ed9b1b3a-7701-4096-b99a-d8c9fcfe74c9/resourceGroups/TLKLABS/providers/Microsoft.Compute/disks/DiskClientVM",
+            "type": "String"
+        },
+        "networkInterfaces_hypervlabs463_externalid": {
+            "defaultValue": "/subscriptions/ed9b1b3a-7701-4096-b99a-d8c9fcfe74c9/resourceGroups/TLKLabs/providers/Microsoft.Network/networkInterfaces/hypervlabs463",
+            "type": "String"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.Compute/virtualMachines",
+            "apiVersion": "2022-03-01",
+            "name": "[parameters('virtualMachines_HyperVLabs_name')]",
+            "location": "westeurope",
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "Standard_E4s_v3"
+                },
+                "storageProfile": {
+                    "imageReference": {
+                        "publisher": "MicrosoftWindowsServer",
+                        "offer": "WindowsServer",
+                        "sku": "2019-Datacenter",
+                        "version": "latest"
+                    },
+                    "osDisk": {
+                        "osType": "Windows",
+                        "name": "[concat(parameters('virtualMachines_HyperVLabs_name'), '_OsDisk_1_16356a2bfe774ab995a3906ced7a0460')]",
+                        "createOption": "FromImage",
+                        "caching": "ReadWrite",
+                        "managedDisk": {
+                            "id": "[parameters('disks_HyperVLabs_OsDisk_1_16356a2bfe774ab995a3906ced7a0460_externalid')]"
+                        }
+                    },
+                    "dataDisks": [
+                        {
+                            "lun": 0,
+                            "name": "DiskServerVM",
+                            "createOption": "Attach",
+                            "caching": "ReadWrite",
+                            "writeAcceleratorEnabled": false,
+                            "managedDisk": {
+                                "id": "[parameters('disks_DiskServerVM_externalid')]"
+                            },
+                            "toBeDetached": false
+                        },
+                        {
+                            "lun": 1,
+                            "name": "DiskClientVM",
+                            "createOption": "Attach",
+                            "caching": "ReadWrite",
+                            "writeAcceleratorEnabled": false,
+                            "managedDisk": {
+                                "id": "[parameters('disks_DiskClientVM_externalid')]"
+                            },
+                            "toBeDetached": false
+                        }
+                    ]
+                },
+                "osProfile": {
+                    "computerName": "[parameters('virtualMachines_HyperVLabs_name')]",
+                    "adminUsername": "Louke",
+                    "windowsConfiguration": {
+                        "provisionVMAgent": true,
+                        "enableAutomaticUpdates": true,
+                        "patchSettings": {
+                            "patchMode": "AutomaticByOS",
+                            "assessmentMode": "ImageDefault"
+                        }
+                    },
+                    "secrets": [],
+                    "allowExtensionOperations": true,
+                    "requireGuestProvisionSignal": true
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[parameters('networkInterfaces_hypervlabs463_externalid')]"
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Compute/virtualMachines/extensions",
+            "apiVersion": "2022-03-01",
+            "name": "[concat(parameters('virtualMachines_HyperVLabs_name'), '/enablevmaccess')]",
+            "location": "westeurope",
+            "dependsOn": [
+                "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachines_HyperVLabs_name'))]"
+            ],
+            "properties": {
+                "autoUpgradeMinorVersion": true,
+                "publisher": "Microsoft.Compute",
+                "type": "VMAccessAgent",
+                "typeHandlerVersion": "2.0",
+                "settings": {
+                    "UserName": "louke"
+                },
+                "protectedSettings": {}
+            }
+        }
+    ]
+}
