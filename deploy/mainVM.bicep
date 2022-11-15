@@ -9,7 +9,7 @@ param location string = resourceGroup().location
 
 //parameters for networkInterface
 param networkInterfaceName1 string
-param networkSecurityGroup string
+param networkSecurityGroupName string
 param subnetName string
 param virtualNetworkName string = 'TLKLab-${uniqueString(resourceGroup().id)}'
 param publicIpAddressName string
@@ -26,7 +26,6 @@ param subnets array //full details in standardVMparam.json
 //parameters for VM
 param virtualMachineName string
 param virtualMachineComputerName1 string
-param virtualMachineRG string
 param osDiskType string
 param osDiskDeleteOption string
 param dataDisks1 array
@@ -39,7 +38,6 @@ param adminUsername string
 param adminPassword string
 param patchMode string
 param enableHotpatching bool
-param zone string
 
 //parameters for  extensions
 param autoShutdownStatus string
@@ -51,9 +49,8 @@ param autoShutdownNotificationEmail string
 param timeInMinutes int
 
 //variable use in resource networkInterface1 to define Network Security Group ID
-var nsgId = resourceId(resourceGroup().name, 'Microsoft.Network/networkSecurityGroups', networkSecurityGroup)
+var nsgId = resourceId(resourceGroup().name, 'Microsoft.Network/networkSecurityGroups', networkSecurityGroupName)
 
-var vnetName = virtualNetworkName
 var aadLoginExtensionName = 'AADLoginForWindows'
 
 //resources to create and configure the networkInterface
@@ -90,8 +87,8 @@ resource networkInterface1 'Microsoft.Network/networkInterfaces@2021-03-01' = {
   ]
 }
 
-resource networkSecurityGroupName 'Microsoft.Network/networkSecurityGroups@2019-02-01' = {
-  name: networkSecurityGroup
+resource networkSecurityGroup 'Microsoft.Network/networkSecurityGroups@2019-02-01' = {
+  name: networkSecurityGroupName
   location: location
   properties: {
     securityRules: networkSecurityGroupRules
@@ -119,7 +116,7 @@ resource publicIpAddress 'Microsoft.Network/publicIpAddresses@2020-08-01' = {
     name: publicIpAddressSku
   }
   zones: [
-    zone
+    '1'
   ]
 }
 
@@ -228,3 +225,20 @@ resource shutdown_computevm_virtualMachineName1 'Microsoft.DevTestLab/schedules@
     }
   }
 }
+
+resource virtualMachine_aadLoginExtension 'Microsoft.Compute/virtualMachines/extensions@2018-10-01' = {
+  parent: virtualMachine
+  name: aadLoginExtensionName
+  location: location
+  properties: {
+    publisher: 'Microsoft.Azure.ActiveDirectory'
+    type: aadLoginExtensionName
+    typeHandlerVersion: '1.0'
+    autoUpgradeMinorVersion: true
+    settings: {
+      mdmId: ''
+    }
+  }
+}
+
+output adminUsername string = adminUsername
