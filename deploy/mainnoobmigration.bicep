@@ -34,9 +34,9 @@ resource virtualMachines 'Microsoft.Compute/virtualMachines@2022-03-01' = {
         name: '${virtualMachine_name}_OsDisk_1' //define resource group id
         createOption: 'FromImage'
         caching: 'ReadWrite'
-        managedDisk: {
-          id: disks_OsDisk_1
-        }
+       // managedDisk: {
+          //id: disks_OsDisk_1
+       // }
       }
       dataDisks: [
         {
